@@ -1,11 +1,6 @@
 import readline from "readline";
 import { Game } from "./memory-game.mjs";
 
-function main() {
-  var app = new CLIApp(["🚂", "🚀", "🚁", "🚜", "🚗", "🚕", "🚙", "🚌"]);
-  app.run();
-}
-
 class CLIApp {
   #game;
   #reader;
@@ -16,23 +11,49 @@ class CLIApp {
   }
 
   async run() {
-    console.log(this.toString());
-    var name = await this.#reader.input("Enter your name: ");
-    console.log("Hello, " + name + "!");
+    while (!this.#game.isOver) {
+      this.#render();
+
+      var cardIndex = await this.#getCardIndex("Choose first card: ");
+      this.#game.choose(cardIndex);
+
+      this.#render();
+
+      var cardIndex2 = await this.#getCardIndex("Choose second card: ");
+      this.#game.choose(cardIndex2);
+
+      this.#render();
+
+      this.#game.yesOrNo(cardIndex, cardIndex2);
+    }
+    console.log("Game over");
     this.#reader.close();
   }
 
-  toString() {
-    return (
+  async #getCardIndex(prompt) {
+    while (true) {
+      let textInputFromUser = await this.#reader.input(prompt);
+      let chosenCardIndex = parseInt(textInputFromUser, 10);
+
+      if (this.#game.isValidCardIndex(chosenCardIndex)) {
+        return chosenCardIndex;
+      }
+
+      console.log("Invalid card");
+    }
+  }
+
+  #render() {
+    console.log(
       `Score: ${this.#game.player.score} \n` +
-      this.#game.deck.cards
-        .reduce((acc, card, index) => {
-          // prettier-ignore
-          var face = card.isMatched ? " " : (card.isFaceUp ? card.emoji : "X");
-          var sep = (index + 1) % 4 == 0 ? "\n" : " ";
-          return acc + face + sep;
-        }, "")
-        .trimEnd()
+        this.#game.cards
+          .reduce((acc, card, index) => {
+            // prettier-ignore
+            var face = card.isMatched ? " " : (card.isFaceUp ? card.emoji : "X");
+            var sep = (index + 1) % 4 == 0 ? "\n" : " ";
+            return acc + face + sep;
+          }, "")
+          .trimEnd()
     );
   }
 }
@@ -60,4 +81,4 @@ class InputReader {
   }
 }
 
-main();
+new CLIApp(["🚂", "🚀", "🚁", "🚜", "🚗", "🚕", "🚙", "🚌"]).run();

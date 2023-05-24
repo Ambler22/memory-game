@@ -26,7 +26,7 @@ mixCards();
 
 renderCards();
 
-while (!cards.every((card) => card.isMatched)) {
+while (cards.some((card) => !card.isMatched)) {
   var chosenCardIndex = await promptCardIndex("first");
   cards[chosenCardIndex].isFaceUp = true;
 

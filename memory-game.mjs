@@ -77,9 +77,43 @@ class Player {
 }
 
 export class Game {
+  #deck;
+
   constructor(emojis) {
     this.player = new Player();
-    this.deck = new Deck(emojis);
-    this.deck.shuffle();
+    this.#deck = new Deck(emojis);
+    this.#deck.shuffle();
+  }
+
+  get isOver() {
+    return this.#deck.cards.every((card) => card.isMatched);
+  }
+
+  get cards() {
+    return this.#deck.cards;
+  }
+
+  choose(cardIndex) {
+    this.#deck.cards[cardIndex].isFaceUp = true;
+  }
+
+  isValidCardIndex(index) {
+    return !(
+      Number.isNaN(index) ||
+      index < 0 ||
+      index >= this.#deck.cards.length ||
+      this.#deck.cards[index].isFaceUp ||
+      this.#deck.cards[index].isMatched
+    );
+  }
+
+  yesOrNo(index1, index2) {
+    if (this.#deck.cards[index1].emoji == this.#deck.cards[index2].emoji) {
+      this.#deck.cards[index1].isMatched = true;
+      this.#deck.cards[index2].isMatched = true;
+    } else {
+      this.#deck.cards[index1].isFaceUp = false;
+      this.#deck.cards[index2].isFaceUp = false;
+    }
   }
 }
