@@ -11,29 +11,44 @@ class CLIApp {
   }
 
   async run() {
-    while (!this.#game.isOver) {
-      this.#render();
+    var shouldRestart = true;
+    while (shouldRestart) {
+      while (!this.#game.isOver) {
+        this.#render();
 
-      var cardIndex = await this.#getCardIndex("Choose first card: ");
-      this.#game.choose(cardIndex);
+        let cardIndex = await this.#getCardIndex("Choose first card: ");
+        this.#game.choose(cardIndex);
 
-      this.#render();
+        this.#render();
 
-      var cardIndex2 = await this.#getCardIndex("Choose second card: ");
-      this.#game.choose(cardIndex2);
+        let cardIndex2 = await this.#getCardIndex("Choose second card: ");
+        this.#game.choose(cardIndex2);
 
-      this.#render();
+        this.#render();
 
-      this.#game.yesOrNo(cardIndex, cardIndex2);
+        this.#game.yesOrNo(cardIndex, cardIndex2);
+      }
+
+      console.log("Game over");
+
+      let answer = (
+        await this.#reader.input("Do you want to restart? (y/n) ")
+      ).toLowerCase();
+
+      if (answer == "yes" || answer == "y") {
+        this.#game = new Game(this.#game.emojis);
+      } else {
+        shouldRestart = false;
+        this.#reader.close();
+      }
     }
-    console.log("Game over");
-    this.#reader.close();
+    console.log("Thanks for playing!");
   }
 
   async #getCardIndex(prompt) {
     while (true) {
       let textInputFromUser = await this.#reader.input(prompt);
-      let chosenCardIndex = parseInt(textInputFromUser, 10);
+      let chosenCardIndex = parseInt(textInputFromUser, 10) - 1; // allow 1 based indices for user
 
       if (this.#game.isValidCardIndex(chosenCardIndex)) {
         return chosenCardIndex;
@@ -81,4 +96,4 @@ class InputReader {
   }
 }
 
-new CLIApp(["🚂", "🚀", "🚁", "🚜", "🚗", "🚕", "🚙", "🚌"]).run();
+new CLIApp(["🚂", "🚀" /* "🚁", "🚜", "🚗", "🚕", "🚙", "🚌" */]).run();

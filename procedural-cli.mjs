@@ -27,12 +27,12 @@ mixCards();
 renderCards();
 
 while (cards.some((card) => !card.isMatched)) {
-  var chosenCardIndex = await promptCardIndex("first");
+  let chosenCardIndex = await promptCardIndex("first");
   cards[chosenCardIndex].isFaceUp = true;
 
   renderCards();
 
-  var chosenCardIndex2 = await promptCardIndex("second");
+  let chosenCardIndex2 = await promptCardIndex("second");
   cards[chosenCardIndex2].isFaceUp = true;
 
   renderCards();

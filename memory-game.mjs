@@ -1,49 +1,27 @@
-// Game
-// ----------
-// properties
-// -----------
-// player: Player
-// deck: Deck
-// cards: Card[]
-// -----------
-// methods
-// -----------
-// start: () -> void
-
-// Player
-// ----------
-// properties
-// -----------
-// score: number
-// -----------
-// methods
-// -----------
-// promptForCard: () -> Card
-
-// Deck
-// ----------
-// properties
-// -----------
-// cards: Array<Card>
-// -----------
-// methods
-// -----------
-// shuffle: () -> void
-// drawCard: () -> Card?
-
-// Card
-// ----------
-// properties
-// -----------
-//  emoji: string
-//  isMatched: boolean
-//  isFaceUp: boolean
-
 class Card {
+  #isFaceUp;
+  #isSeen;
+
   constructor(emoji) {
     this.emoji = emoji;
-    this.isFaceUp = false;
     this.isMatched = false;
+    this.#isSeen = false;
+    this.#isFaceUp = false;
+  }
+
+  get isSeen() {
+    return this.#isSeen;
+  }
+
+  get isFaceUp() {
+    return this.#isFaceUp;
+  }
+
+  set isFaceUp(newIsFaceUp) {
+    if (this.#isFaceUp && !newIsFaceUp) {
+      this.#isSeen = true;
+    }
+    this.#isFaceUp = newIsFaceUp;
   }
 }
 
@@ -74,12 +52,23 @@ class Player {
   constructor() {
     this.score = 0;
   }
+
+  match() {
+    this.score += 2;
+  }
+
+  noMatch() {
+    if (this.score > 0) {
+      this.score -= 1;
+    }
+  }
 }
 
 export class Game {
   #deck;
 
   constructor(emojis) {
+    this.emojis = emojis;
     this.player = new Player();
     this.#deck = new Deck(emojis);
     this.#deck.shuffle();
@@ -108,12 +97,18 @@ export class Game {
   }
 
   yesOrNo(index1, index2) {
-    if (this.#deck.cards[index1].emoji == this.#deck.cards[index2].emoji) {
-      this.#deck.cards[index1].isMatched = true;
-      this.#deck.cards[index2].isMatched = true;
+    var firstCard = this.#deck.cards[index1];
+    var secondCard = this.#deck.cards[index2];
+    if (firstCard.emoji == secondCard.emoji) {
+      firstCard.isMatched = true;
+      secondCard.isMatched = true;
+      this.player.match();
     } else {
-      this.#deck.cards[index1].isFaceUp = false;
-      this.#deck.cards[index2].isFaceUp = false;
+      if (firstCard.isSeen || secondCard.isSeen) {
+        this.player.noMatch();
+      }
+      firstCard.isFaceUp = false;
+      secondCard.isFaceUp = false;
     }
   }
 }
